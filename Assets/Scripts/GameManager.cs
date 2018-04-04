@@ -15,7 +15,19 @@ public class GameManager : Singleton<GameManager> {
 		Board.Instance.ClearBoard ();
 		Board.Instance.StartBoard(boardSize,allowDiagonals,allowFreeMode);
 		gameState = State.RUNNING;
-		Camera.main.orthographicSize = (boardSize.x+1)/2;
+		float cameraHeight = Camera.main.orthographicSize;
+		float cameraWidth = cameraHeight * Camera.main.aspect;
+
+		float difHeight = boardSize.x -1 - cameraHeight;
+		float difWidth = boardSize.y - 1 - cameraWidth;
+
+		if (difHeight > difWidth){
+			Camera.main.orthographicSize = (boardSize.x+1) / 2f;
+		}
+		else {
+            Camera.main.orthographicSize =  ((boardSize.y+1)/2f) /Camera.main.aspect;
+		}
+
 	}
 
 	public void ReloadGame () {
