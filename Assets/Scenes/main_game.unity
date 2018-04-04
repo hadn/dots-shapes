@@ -195,12 +195,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 022392cef57bee34a8910f0946359a8d, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  boardSize: {x: 3, y: 3}
+  boardSize: {x: 10, y: 10}
   linkFactory: {fileID: 1778648205}
   nodeFactory: {fileID: 430566625}
   linkCollisionToleration: 0.02
   allowDiagonals: 0
-  allowFreeMode: 1
+  allowFreeMode: 0
   linkCollisionMask:
     serializedVersion: 2
     m_Bits: 512
@@ -256,7 +256,7 @@ Camera:
   far clip plane: 1000
   field of view: 60
   orthographic: 1
-  orthographic size: 5
+  orthographic size: 6
   m_Depth: -1
   m_CullingMask:
     serializedVersion: 2
