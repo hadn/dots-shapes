@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager> {
 	public enum State {
@@ -15,5 +16,9 @@ public class GameManager : Singleton<GameManager> {
 		Board.Instance.StartBoard(boardSize,allowDiagonals,allowFreeMode);
 		gameState = State.RUNNING;
 		Camera.main.orthographicSize = (boardSize.x+1)/2;
+	}
+
+	public void ReloadGame () {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 	}
 }

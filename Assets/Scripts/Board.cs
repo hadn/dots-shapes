@@ -20,6 +20,7 @@ public class Board : Singleton<Board> {
 		this.allowFreeMode = allowFreeMode;
 		Init (boardSize.x * boardSize.y);
 		nodeFactory.CreateNodes(boardSize.x,boardSize.y);
+		GetComponent<ShapeDetection>().generatePixelGrid(this);
 	}
 
 	public void Init (int nodeCount) {
@@ -52,7 +53,8 @@ public class Board : Singleton<Board> {
 
 		adjacencyMatrix[n1.Id,n2.Id] = 1;
 		adjacencyMatrix[n2.Id,n1.Id] = 1;
-		linkFactory.CreateLink(n1,n2);
+		GameObject link = linkFactory.CreateLink(n1,n2);
+		GetComponent<ShapeDetection>().Paint(n1,n2);		
 	}
 
 	bool alreadyConnectedNodes (Node n1 , Node n2) {

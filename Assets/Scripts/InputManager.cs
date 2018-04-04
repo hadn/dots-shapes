@@ -23,7 +23,7 @@ public class InputManager : Singleton<MonoBehaviour> {
 				Node.OnClickNothing();
 		}
 		if (Input.GetKeyDown(KeyCode.R)) {
-			SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+			GameManager.instance.ReloadGame();
 		}
 	}
 

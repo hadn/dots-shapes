@@ -11,13 +11,14 @@ public class LinkFactory : MonoBehaviour {
 	}
 
 
-	public void CreateLink (Node n1 , Node n2) {
+	public GameObject CreateLink (Node n1 , Node n2) {
 		GameObject link = pool.getObject();
 		link.transform.position =  Vector3.zero;
 		link.transform.rotation = Quaternion.identity;
 		setupLineRenderer(n1,n2,link);
 		setupEdgeCollider(n1,n2,link);
 		link.name = n1.Id + "-" + n2.Id;
+		return link;
 	}
 
 	void setupLineRenderer (Node n1, Node n2, GameObject link) {
