@@ -14,7 +14,10 @@ public class Board : Singleton<Board> {
 
 	public LayerMask linkCollisionMask;
 
-	void Start () {
+	public void StartBoard (Vector2Int boardSize, bool allowDiagonals, bool allowFreeMode) {
+		this.boardSize = boardSize;
+		this.allowDiagonals = allowDiagonals;
+		this.allowFreeMode = allowFreeMode;
 		Init (boardSize.x * boardSize.y);
 		nodeFactory.CreateNodes(boardSize.x,boardSize.y);
 	}
@@ -88,5 +91,10 @@ public class Board : Singleton<Board> {
 		Vector3 from = n1.transform.position - direction;
 		Vector3 to = n2.transform.position + direction;
 		return Physics2D.Linecast(from,to,linkCollisionMask);
+	}
+
+	public void ClearBoard () {
+		linkFactory.Clear();
+		nodeFactory.Clear();
 	}
 }

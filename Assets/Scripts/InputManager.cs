@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 
 public class InputManager : Singleton<MonoBehaviour> {
 
@@ -9,6 +10,8 @@ public class InputManager : Singleton<MonoBehaviour> {
 	
 
 	void Update () {
+		if (GameManager.Instance.gameState != GameManager.State.RUNNING)
+			return;
 		if (Input.GetMouseButtonDown(0)) {
 			Collider2D col =  Physics2D.OverlapCircle(
 				getMousePosition(),
@@ -18,6 +21,9 @@ public class InputManager : Singleton<MonoBehaviour> {
 				col.GetComponent<Node>().OnClick();
 			else 
 				Node.OnClickNothing();
+		}
+		if (Input.GetKeyDown(KeyCode.R)) {
+			SceneManager.LoadScene(SceneManager.GetActiveScene().name);
 		}
 	}
 

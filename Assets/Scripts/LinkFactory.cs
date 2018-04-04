@@ -2,13 +2,19 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+[RequireComponent(typeof(ObjectPool))]
 public class LinkFactory : MonoBehaviour {
+	ObjectPool pool;
 
-	public GameObject linkPrefab;
+	void Awake () {
+		pool = GetComponent<ObjectPool>();
+	}
+
 
 	public void CreateLink (Node n1 , Node n2) {
-		GameObject link = Instantiate (linkPrefab,Vector3.zero,
-			Quaternion.identity,transform);
+		GameObject link = pool.getObject();
+		link.transform.position =  Vector3.zero;
+		link.transform.rotation = Quaternion.identity;
 		setupLineRenderer(n1,n2,link);
 		setupEdgeCollider(n1,n2,link);
 		link.name = n1.Id + "-" + n2.Id;
@@ -29,4 +35,13 @@ public class LinkFactory : MonoBehaviour {
             n2.transform.position};
 		col.points = points;
 	}
+
+	public void Clear () {
+		for (int i = 0;i<transform.childCount;i++) {
+			if (transform.GetChild(i).gameObject.activeInHierarchy) {
+				pool.returnObject(transform.GetChild(i).gameObject);
+			}
+		}
+	}
+
 }
