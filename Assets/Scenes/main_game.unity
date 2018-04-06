@@ -687,8 +687,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f85f4802db49a9848b8688bf81e5b54c, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  DEBUG_MODE: 1
-  cellsPerUnit: 25
+  DEBUG_MODE: 0
+  cellsPerUnit: 30
 --- !u!114 &542328268
 MonoBehaviour:
   m_ObjectHideFlags: 0

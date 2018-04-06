@@ -30,9 +30,34 @@ public class ShapeDetection : MonoBehaviour{
 		Vector2Int P1 = new Vector2Int ((int)p1.y, (int)p1.x);
 		Vector2Int P2 = new Vector2Int ((int)p2.y, (int)p2.x);
 		bresenham(P1,P2);
+		Vector2 midPoint = (Vector2)(P1 + P2) * 0.5f;
+        Vector2 v = P2-P1;
+        float magiConstant = Mathf.Sqrt(Mathf.Pow(v.x, 2f) + Mathf.Pow(v.y, 2f));
+        Vector2 P3 = new Vector2(-v.y, v.x) / (magiConstant) * 3;
+        Vector2 P4 = new Vector2(-v.y, v.x) / (magiConstant) * -3;
+        Vector2Int roundedP3 = getNearestPoint(midPoint+P3);
+        Vector2Int roundedP4 = getNearestPoint(midPoint+P4);
+        
+        if (!pointIsOutOfBounds(roundedP3)){
+            FloodFill(roundedP3,0,1);
+        }
+        if (!pointIsOutOfBounds(roundedP4)){
+            FloodFill(roundedP4, 0, 1);
+        }
 	}
 
-    
+    Vector2Int getNearestPoint (Vector2 p) {
+        return new Vector2Int (Mathf.RoundToInt(p.x),Mathf.RoundToInt(p.y));
+    }
+
+    void paintPixel (Vector2Int p , int color ) {
+        pixels[p.x,p.y] = color;
+    }
+
+    bool pointIsOutOfBounds (Vector2Int p) {
+        return p.x < 0 || p.x >= pixels.GetLength(0) ||
+        p.y < 0 || p.y >= pixels.GetLength(1);
+    }
 
 	void OnDrawGizmos () {
         if (pixels == null || !DEBUG_MODE)
@@ -90,6 +115,78 @@ public class ShapeDetection : MonoBehaviour{
                 x += dx2;
                 y += dy2;
             }
+        }
+    }
+
+    void FloodFill(Vector2Int p, int targetColor, int replacementColor)
+    {
+        Queue<Vector2Int> q = new Queue<Vector2Int>();
+        List<Vector2Int> shouldPaintThese = new List<Vector2Int>();
+        bool breakOuterLoop = false;
+        q.Enqueue(p);
+        while (q.Count > 0 && !breakOuterLoop)
+        {
+            var n = q.Dequeue();
+            if (pixels[n.x, n.y] != targetColor)
+                continue;
+            Vector2Int w = n, e = new Vector2Int(n.x + 1, n.y);
+            while (true)
+            {
+                if (pointIsOutOfBounds(w))
+                {
+                    breakOuterLoop = true;
+                    break;
+                }
+                if (pixels[w.x, w.y] != targetColor)
+                    break;
+                pixels[w.x, w.y] = replacementColor;
+                shouldPaintThese.Add(w);
+                if (w.y == 0 || w.y == pixels.GetLength(1) - 1 || w.x == 0 || w.x == pixels.GetLength(0) - 1)
+                {
+                    breakOuterLoop = true;
+                    break;
+                }
+                if (pixels[w.x, w.y - 1] == targetColor)
+                    q.Enqueue(new Vector2Int(w.x, w.y - 1));
+                if (pixels[w.x, w.y + 1] == targetColor)
+                    q.Enqueue(new Vector2Int(w.x, w.y + 1));
+                w.x--;
+            }
+            if (breakOuterLoop)
+                break;
+            while (true)
+            {
+                if (pointIsOutOfBounds(e))
+                {
+                    breakOuterLoop = true;
+                    break;
+                }
+                if (pixels[e.x, e.y] != targetColor)
+                    break;
+                pixels[e.x, e.y] = replacementColor;
+                shouldPaintThese.Add(e);
+                if (e.y == 0 || e.y == pixels.GetLength(1) || e.x == 0 || e.x == pixels.GetLength(0))
+                {
+                    breakOuterLoop = true;
+                    break;
+                }
+                if (e.y > 0 && pixels[e.x, e.y - 1] == targetColor)
+                    q.Enqueue(new Vector2Int(e.x, e.y - 1));
+                if (pixels[e.x, e.y + 1] == targetColor)
+                    q.Enqueue(new Vector2Int(e.x, e.y + 1));
+                e.x++;
+            }
+        }
+        if (breakOuterLoop)
+        {
+            foreach (var P in shouldPaintThese)
+            {
+                pixels[P.x, P.y] = targetColor;
+            }
+        }
+        else
+        {
+            Debug.Log("Poligono encontrado");
         }
     }
 }
