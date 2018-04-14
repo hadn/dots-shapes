@@ -4,10 +4,14 @@ using UnityEngine;
 
 [RequireComponent(typeof(ObjectPool))]
 public class NodeFactory : MonoBehaviour{
+    public Dictionary<int, Node> nodeSet = new Dictionary<int, Node>();
+    int linkId ;
 	ObjectPool pool;
+
 
 	void Awake (){ 
 		pool = GetComponent<ObjectPool>();
+		linkId = 1;
 	}
 
 	public void CreateNodes (int height, int width) {

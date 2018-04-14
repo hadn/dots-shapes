@@ -20,7 +20,8 @@ public class ShapeDetection : MonoBehaviour{
 		}
 	}
 
-	public void Paint (Node n1 , Node n2) {
+	public List<List<int>> CreateLine (Node n1 , Node n2, int edgeColor) {
+        List<List<int>> polygons = new List<List<int>>();
 		Vector3 p1 = n1.transform.position;
 		Vector3 p2 = n2.transform.position;
 		p2 += board.getOffset();
@@ -29,7 +30,7 @@ public class ShapeDetection : MonoBehaviour{
 		p2 *= cellsPerUnit;
 		Vector2Int P1 = new Vector2Int ((int)p1.y, (int)p1.x);
 		Vector2Int P2 = new Vector2Int ((int)p2.y, (int)p2.x);
-		bresenham(P1,P2);
+		bresenham(P1,P2,edgeColor);
 		Vector2 midPoint = (Vector2)(P1 + P2) * 0.5f;
         Vector2 v = P2-P1;
         float magiConstant = Mathf.Sqrt(Mathf.Pow(v.x, 2f) + Mathf.Pow(v.y, 2f));
@@ -39,11 +40,18 @@ public class ShapeDetection : MonoBehaviour{
         Vector2Int roundedP4 = getNearestPoint(midPoint+P4);
         
         if (!pointIsOutOfBounds(roundedP3)){
-            FloodFill(roundedP3,0,1);
+            List<int> edges = FloodFill(roundedP3,0,1);
+            if (edges != null) {
+                polygons.Add(edges);
+            }
         }
         if (!pointIsOutOfBounds(roundedP4)){
-            FloodFill(roundedP4, 0, 1);
+            List<int> edges = FloodFill(roundedP4, 0, 1);
+            if (edges != null) {
+                polygons.Add(edges);
+            }
         }
+        return polygons;
 	}
 
     Vector2Int getNearestPoint (Vector2 p) {
@@ -78,8 +86,8 @@ public class ShapeDetection : MonoBehaviour{
         }
 	}
 
-	void bresenham (Vector2Int P1 , Vector2Int P2) {
-		bresenham (P1.x,P1.y,P2.x,P2.y,1);
+	void bresenham (Vector2Int P1 , Vector2Int P2, int edgeColor) {
+		bresenham (P1.x,P1.y,P2.x,P2.y,edgeColor);
 	}
 
     void bresenham(int x, int y, int x2, int y2, int color)
@@ -118,8 +126,9 @@ public class ShapeDetection : MonoBehaviour{
         }
     }
 
-    void FloodFill(Vector2Int p, int targetColor, int replacementColor)
+    List<int> FloodFill(Vector2Int p, int targetColor, int replacementColor)
     {
+        List<int> polygonEdgeIds = new List<int>();
         Queue<Vector2Int> q = new Queue<Vector2Int>();
         List<Vector2Int> shouldPaintThese = new List<Vector2Int>();
         bool breakOuterLoop = false;
@@ -127,8 +136,11 @@ public class ShapeDetection : MonoBehaviour{
         while (q.Count > 0 && !breakOuterLoop)
         {
             var n = q.Dequeue();
-            if (pixels[n.x, n.y] != targetColor)
+            if (pixels[n.x, n.y] != targetColor){
+                if (!polygonEdgeIds.Contains(pixels[n.x,n.y]))
+                    polygonEdgeIds.Add(pixels[n.x,n.y]);
                 continue;
+            }
             Vector2Int w = n, e = new Vector2Int(n.x + 1, n.y);
             while (true)
             {
@@ -137,8 +149,11 @@ public class ShapeDetection : MonoBehaviour{
                     breakOuterLoop = true;
                     break;
                 }
-                if (pixels[w.x, w.y] != targetColor)
+                if (pixels[w.x, w.y] != targetColor){
+                    if (!polygonEdgeIds.Contains(pixels[w.x, w.y]))
+                        polygonEdgeIds.Add(pixels[w.x, w.y]);
                     break;
+                }
                 pixels[w.x, w.y] = replacementColor;
                 shouldPaintThese.Add(w);
                 if (w.y == 0 || w.y == pixels.GetLength(1) - 1 || w.x == 0 || w.x == pixels.GetLength(0) - 1)
@@ -146,10 +161,18 @@ public class ShapeDetection : MonoBehaviour{
                     breakOuterLoop = true;
                     break;
                 }
-                if (pixels[w.x, w.y - 1] == targetColor)
+                if (pixels[w.x, w.y - 1] == targetColor){
                     q.Enqueue(new Vector2Int(w.x, w.y - 1));
-                if (pixels[w.x, w.y + 1] == targetColor)
+                }else {
+                    if (!polygonEdgeIds.Contains(pixels[w.x, w.y - 1]))
+                        polygonEdgeIds.Add(pixels[w.x, w.y - 1]);
+                }
+                if (pixels[w.x, w.y + 1] == targetColor){
                     q.Enqueue(new Vector2Int(w.x, w.y + 1));
+                }else{
+                    if (!polygonEdgeIds.Contains(pixels[w.x, w.y + 1]))
+                        polygonEdgeIds.Add(pixels[w.x, w.y + 1]);
+                }
                 w.x--;
             }
             if (breakOuterLoop)
@@ -161,8 +184,11 @@ public class ShapeDetection : MonoBehaviour{
                     breakOuterLoop = true;
                     break;
                 }
-                if (pixels[e.x, e.y] != targetColor)
+                if (pixels[e.x, e.y] != targetColor){
+                    if (!polygonEdgeIds.Contains(pixels[e.x, e.y]))
+                        polygonEdgeIds.Add(pixels[e.x, e.y]);
                     break;
+                }
                 pixels[e.x, e.y] = replacementColor;
                 shouldPaintThese.Add(e);
                 if (e.y == 0 || e.y == pixels.GetLength(1) || e.x == 0 || e.x == pixels.GetLength(0))
@@ -170,10 +196,18 @@ public class ShapeDetection : MonoBehaviour{
                     breakOuterLoop = true;
                     break;
                 }
-                if (e.y > 0 && pixels[e.x, e.y - 1] == targetColor)
+                if (pixels[e.x, e.y - 1] == targetColor){
                     q.Enqueue(new Vector2Int(e.x, e.y - 1));
-                if (pixels[e.x, e.y + 1] == targetColor)
+                }else {
+                    if (!polygonEdgeIds.Contains(pixels[e.x, e.y-1]))
+                        polygonEdgeIds.Add(pixels[e.x, e.y-1]);
+                }
+                if (pixels[e.x, e.y + 1] == targetColor){
                     q.Enqueue(new Vector2Int(e.x, e.y + 1));
+                }else {
+                    if (!polygonEdgeIds.Contains(pixels[e.x, e.y + 1]))
+                        polygonEdgeIds.Add(pixels[e.x, e.y + 1]);
+                }
                 e.x++;
             }
         }
@@ -183,10 +217,11 @@ public class ShapeDetection : MonoBehaviour{
             {
                 pixels[P.x, P.y] = targetColor;
             }
+            return null;
         }
         else
         {
-            Debug.Log("Poligono encontrado");
+            return polygonEdgeIds;
         }
     }
 }

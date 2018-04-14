@@ -57,8 +57,16 @@ public class Board : Singleton<Board> {
 
 		adjacencyMatrix[n1.Id,n2.Id] = 1;
 		adjacencyMatrix[n2.Id,n1.Id] = 1;
-		GameObject link = linkFactory.CreateLink(n1,n2);
-		GetComponent<ShapeDetection>().Paint(n1,n2);		
+		Link link = linkFactory.CreateLink(n1,n2);
+		List<List<int>> polygons = GetComponent<ShapeDetection>().CreateLine(n1,n2,link.Id);
+		generateMesh(polygons);
+	}
+
+	void generateMesh (List<List<int>> polygons) {
+		foreach (var polygon in polygons)
+		{
+			GetComponent<MeshGenerator>().GeneratePolygon(polygon);
+		}
 	}
 
 	bool alreadyConnectedNodes (Node n1 , Node n2) {
