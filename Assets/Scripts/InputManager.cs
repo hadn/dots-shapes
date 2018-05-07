@@ -17,8 +17,10 @@ public class InputManager : Singleton<MonoBehaviour> {
 				getMousePosition(),
 				nodeSelectionTouchRadius,
 				nodeMask);
-			if (col != null)
-				col.GetComponent<Node>().OnClick();
+			if (col != null){
+				var result = col.GetComponent<Node>().OnClick();
+				GameManager.Instance.PlayerMoved (result);
+			}
 			else 
 				Node.OnClickNothing();
 		}

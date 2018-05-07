@@ -20,15 +20,17 @@ public class Node : MonoBehaviour {
 		this.Id = nodeId;
 	}
 
-	public void OnClick () {
+	public Board.PlayerMoveResult OnClick () {
 		if (selectedNode == null) {
 			selectedNode = this;
 			ToggleIsSelected (true);
+			return Board.PlayerMoveResult.INVALID;
 		}
-		else if (selectedNode != null) {
-			Board.Instance.CreateConnection (this,selectedNode);
+		else {
+			Board.PlayerMoveResult result = Board.Instance.CreateConnection (this,selectedNode);
 			selectedNode.ToggleIsSelected(false);
 			selectedNode = null;
+			return result;
 		}
 	}
 

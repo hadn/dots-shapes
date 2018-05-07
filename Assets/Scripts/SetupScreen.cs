@@ -6,9 +6,12 @@ using UnityEngine.UI;
 public class SetupScreen : MonoBehaviour {
 	public Text widthText;
 	public Text heightText;
+	
 	public GameObject diagonalsToggle;
 	public GameObject freeModeToggle;
 	public GameObject diagonalsGameObject;
+	
+	public Dropdown dropdown;
 
 	public Image Color1;
 	public Image Color2;
@@ -18,11 +21,14 @@ public class SetupScreen : MonoBehaviour {
 	public bool allowDiagonals = true;
 	public bool allowFreeMode = true;
 
+	Player p1 , p2;
+
 	void Start () {
 		widthText.text = width.ToString();
 		heightText.text = height.ToString();
 		toggleAllowFreeMode();
 		toggleAllowDiagonals();
+		getRandomColor ();
 	}
 
 	public void changeWidth  (int increment) {
@@ -50,9 +56,27 @@ public class SetupScreen : MonoBehaviour {
 	}
 
 	public void StartGame () {
-		GameManager.Instance.startANewGame(null,null,
+		createPlayers ();
+		GameManager.Instance.startANewGame(p1,p2,
 			new Vector2Int(height,width),allowDiagonals,allowFreeMode);
 		gameObject.SetActive(false);
+	}
+
+	void createPlayers () {
+		switch (dropdown.value) {
+			case 0: // PLAYER VS PLAYER
+				p1 = new Player(Player.Type.HUMAN,Color1.color);
+				p2 = new Player(Player.Type.HUMAN,Color2.color);
+			break;
+			case 1: // PLAYER VS PC
+				p1 = new Player(Player.Type.HUMAN,Color1.color);
+				p2 = new Player(Player.Type.AI,Color2.color);
+			break;
+			case 2: // PC VS PC
+				p1 = new Player(Player.Type.AI,Color1.color);
+				p2 = new Player(Player.Type.AI,Color2.color);
+			break;
+		}
 	}
 
 	public void getRandomColor () {

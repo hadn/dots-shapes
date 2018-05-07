@@ -3,7 +3,17 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Player {
-
+	public enum Type {
+		HUMAN, 
+		AI
+	}
+	public Type playerType;
 	public float score;
-	public string name;
+	public Color color;
+	public Material mat;
+
+	public Player (Type type , Color col) {
+		this.playerType = type;
+		this.color = col;
+	}
 }

@@ -10,9 +10,9 @@ public class MeshGenerator : MonoBehaviour {
     bool endRecursion = false;
     List<GraphNode> cycle ;
 
-	public void GeneratePolygon (List<int> edges) {
+	public bool GeneratePolygon (List<int> edges) {
 		if (edges.Count < 3)
-			return;
+			return false;
         graph = new Dictionary<int,GraphNode>();
 
 		for (int i = 0 ; i < edges.Count;i++) {
@@ -42,12 +42,17 @@ public class MeshGenerator : MonoBehaviour {
         
         if (cycle != null) {
             List<Vector2> worldPositions = new List<Vector2>();
+            List<Node> nodeList = new List<Node>();
             foreach (var n in cycle)
             {
                 worldPositions.Add(n.worldNode.transform.position);
+                nodeList.Add (n.worldNode);
             }
-            createTheMesh(worldPositions);
+            GameObject polygon = createTheMesh(worldPositions);
+            GameManager.Instance.newPolygonCreated (polygon,nodeList);
+            return true;
         }
+        return false;
 	}
 
     void removeLeafs () {
@@ -82,7 +87,7 @@ public class MeshGenerator : MonoBehaviour {
         }
     }
 
-    void createTheMesh (List<Vector2> vertList) {
+    GameObject createTheMesh (List<Vector2> vertList) {
         Vector2[] verts = vertList.ToArray();
         Triangulator tr = new Triangulator(verts);
         int[] indices = tr.Triangulate();
@@ -108,6 +113,7 @@ public class MeshGenerator : MonoBehaviour {
         col.points = vertList.ToArray();
         go.layer = LayerMask.NameToLayer("Polygon");
         filter.mesh = msh;
+        return go;
     }
 
 

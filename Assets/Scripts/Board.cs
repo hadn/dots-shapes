@@ -3,6 +3,12 @@ using System.Collections.Generic;
 using UnityEngine;
 
 public class Board : Singleton<Board> {
+	public enum PlayerMoveResult {
+		INVALID,
+		NEW_POLYGON,
+		NEW_EDGE,
+		CANCELLED
+	}
 	public Vector2Int boardSize;
 	public LinkFactory linkFactory;
 	public NodeFactory nodeFactory;
@@ -47,26 +53,33 @@ public class Board : Singleton<Board> {
         return new Vector3((boardSize.y - 1) / 2f, (boardSize.x - 1) / 2f, 0f);
 	}
 
-	public void CreateConnection (Node n1, Node n2) {
+	public PlayerMoveResult CreateConnection (Node n1, Node n2) {
 		if (alreadyConnectedNodes(n1,n2))
-			return;
+			return PlayerMoveResult.INVALID;
 		if (!canConnectNodes(n1,n2))
-			return;
+			return PlayerMoveResult.INVALID;
 		if (newLinkCollides(n1,n2))
-			return ;
+			return PlayerMoveResult.INVALID;
 
 		adjacencyMatrix[n1.Id,n2.Id] = 1;
 		adjacencyMatrix[n2.Id,n1.Id] = 1;
 		Link link = linkFactory.CreateLink(n1,n2);
 		List<List<int>> polygons = GetComponent<ShapeDetection>().CreateLine(n1,n2,link.Id);
-		generateMesh(polygons);
+		bool newMesh = generateMesh(polygons);
+		if (newMesh)
+			return PlayerMoveResult.NEW_POLYGON;
+		else
+			return PlayerMoveResult.NEW_EDGE;
 	}
 
-	void generateMesh (List<List<int>> polygons) {
+	bool generateMesh (List<List<int>> polygons) {
+		bool newMeshCreated = false;
 		foreach (var polygon in polygons)
 		{
-			GetComponent<MeshGenerator>().GeneratePolygon(polygon);
+			bool newMesh = GetComponent<MeshGenerator>().GeneratePolygon(polygon);
+			newMeshCreated |= newMesh;
 		}
+		return newMeshCreated;
 	}
 
 	bool alreadyConnectedNodes (Node n1 , Node n2) {
