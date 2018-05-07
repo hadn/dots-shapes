@@ -14,7 +14,7 @@ public class MeshGenerator : MonoBehaviour {
 		if (edges.Count < 3)
 			return;
         graph = new Dictionary<int,GraphNode>();
-        int initialNodeIndex = -1;
+
 		for (int i = 0 ; i < edges.Count;i++) {
 			Link link = linkFactory.getLinkById(edges[i]);
             if (link == null)
@@ -25,11 +25,21 @@ public class MeshGenerator : MonoBehaviour {
                 graph.Add(link.n2.Id, new GraphNode(link.n2));
             graph[link.n1.Id].viz.Add(graph[link.n2.Id]);
             graph[link.n2.Id].viz.Add(graph[link.n1.Id]);
-            initialNodeIndex = link.n1.Id;
 		}
+
+        removeLeafs();
+        GraphNode initialNode = null;
+        foreach (var node in graph.Values) {
+            if (node.viz.Count == 2){
+                initialNode = node;
+                break;
+            }
+        }
+        
         endRecursion = false;
         cycle = null;
-        DFS(graph[initialNodeIndex] , new List<GraphNode>(), null);
+        DFS(initialNode, new List<GraphNode>(), null);
+        
         if (cycle != null) {
             List<Vector2> worldPositions = new List<Vector2>();
             foreach (var n in cycle)
@@ -39,6 +49,22 @@ public class MeshGenerator : MonoBehaviour {
             createTheMesh(worldPositions);
         }
 	}
+
+    void removeLeafs () {
+        foreach (var node in graph.Values) {
+            GraphNode f = node;
+            while (f != null ){
+                if (f.viz.Count == 1) {
+                    var parent = f.viz[0];
+                    f.viz.Clear();
+                    parent.viz.Remove (f);
+                    f = parent;
+                }else {
+                    f = null;
+                }
+            }
+        }
+    }
 
     void DFS (GraphNode node, List<GraphNode> path, GraphNode parent) {
         path.Add(node);
