@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager> {
@@ -8,7 +9,7 @@ public class GameManager : Singleton<GameManager> {
 		RUNNING, PAUSED,STOPED
 	}
 	public State gameState ;
-
+	public Image currentPlayerIndicator;
 	List<Player> players;
 	Player currentPlayer;
 
@@ -17,6 +18,8 @@ public class GameManager : Singleton<GameManager> {
 		Board.Instance.ClearBoard ();
 		Board.Instance.StartBoard(boardSize,allowDiagonals,allowFreeMode);
 		players = new List<Player> ( new Player[] {player1,player2} );
+		currentPlayer = player1;
+		updatePlayerIndicator ();
 		gameState = State.RUNNING;
 		float cameraHeight = Camera.main.orthographicSize;
 		float cameraWidth = cameraHeight * Camera.main.aspect;
@@ -32,8 +35,15 @@ public class GameManager : Singleton<GameManager> {
 		}
 	}
 
+	void updatePlayerIndicator () {
+		if (!currentPlayerIndicator.gameObject.activeInHierarchy)
+			currentPlayerIndicator.gameObject.SetActive(true);
+		currentPlayerIndicator.color = currentPlayer.color;
+	}
+
 	void nextPlayer () {
 		currentPlayer = players [ (players.IndexOf (currentPlayer) + 1 ) % players.Count];
+		updatePlayerIndicator();
 	}
 
 	public void newPolygonCreated (GameObject polygon, List<Node> borderNodes) {
