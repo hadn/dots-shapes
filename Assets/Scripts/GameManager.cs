@@ -10,7 +10,6 @@ public class GameManager : Singleton<GameManager> {
 		RUNNING, PAUSED,STOPED
 	}
 	public State gameState ;
-	public Image currentPlayerIndicator;
 	List<Player> players;
 	Player currentPlayer;
 
@@ -33,6 +32,7 @@ public class GameManager : Singleton<GameManager> {
 		else {
             Camera.main.orthographicSize =  (( (boardSize.y+1)*1.1f)/2f) /Camera.main.aspect;
 		}
+		HUD.Instance.show();
 		HUD.Instance.setPlayerColor (0," player1.name" , player1.color);
 		HUD.Instance.setPlayerColor (1, "player2.name" , player2.color);
 		updatePlayerIndicator ();
