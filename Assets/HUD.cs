@@ -11,13 +11,14 @@ public class HUD : Singleton<HUD> {
 	{
 		background[player].color = color;
 
-		//score[player].color = color;
-		//name[player].text = name;
-		//score[player].text = "0";
+		this.score[player].color = color;
+		this.name[player].color = color;
+		this.name[player].text = name;
+		this.score[player].text = "0";
 	}
 
 	public void UpdateScore (int player , float score) {
-		Debug.Log (score[0]);
+		this.score[player].text = score.ToString("0.0");
 	}
 
 	public void setPlayerTurn (int player) {
