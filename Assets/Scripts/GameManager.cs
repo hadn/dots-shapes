@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
+using UnityEngine.Events;
 
 public class GameManager : Singleton<GameManager> {
 	public enum State {
@@ -19,7 +20,6 @@ public class GameManager : Singleton<GameManager> {
 		Board.Instance.StartBoard(boardSize,allowDiagonals,allowFreeMode);
 		players = new List<Player> ( new Player[] {player1,player2} );
 		currentPlayer = player1;
-		updatePlayerIndicator ();
 		gameState = State.RUNNING;
 		float cameraHeight = Camera.main.orthographicSize;
 		float cameraWidth = cameraHeight * Camera.main.aspect;
@@ -28,17 +28,18 @@ public class GameManager : Singleton<GameManager> {
 		float difWidth = boardSize.y - 1 - cameraWidth;
 
 		if (difHeight > difWidth){
-			Camera.main.orthographicSize = (boardSize.x+1) / 2f;
+			Camera.main.orthographicSize = ( (boardSize.x+1) * 1.1f) / 2f;
 		}
 		else {
-            Camera.main.orthographicSize =  ((boardSize.y+1)/2f) /Camera.main.aspect;
+            Camera.main.orthographicSize =  (( (boardSize.y+1)*1.1f)/2f) /Camera.main.aspect;
 		}
+		HUD.Instance.setPlayerColor (0," player1.name" , player1.color);
+		HUD.Instance.setPlayerColor (1, "player2.name" , player2.color);
+		updatePlayerIndicator ();
 	}
 
 	void updatePlayerIndicator () {
-		if (!currentPlayerIndicator.gameObject.activeInHierarchy)
-			currentPlayerIndicator.gameObject.SetActive(true);
-		currentPlayerIndicator.color = currentPlayer.color;
+		HUD.Instance.setPlayerTurn (players.IndexOf (currentPlayer));
 	}
 
 	void nextPlayer () {
@@ -52,7 +53,9 @@ public class GameManager : Singleton<GameManager> {
 			currentPlayer.mat.color = currentPlayer.color;
 		}
 		polygon.GetComponent<MeshRenderer>().material = currentPlayer.mat;
-		// calculate points;
+		var score = ScoreCalculator.getScore(polygon,borderNodes);
+		currentPlayer.score += score;
+		HUD.Instance.UpdateScore (players.IndexOf (currentPlayer),currentPlayer.score);
 	}
 
 	public void PlayerMoved (Board.PlayerMoveResult result) {

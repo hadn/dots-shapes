@@ -20,12 +20,15 @@ public class Board : Singleton<Board> {
 
 	public LayerMask linkCollisionMask;
 
+	public List<Node> nodes = new List<Node>();
+
+
 	public void StartBoard (Vector2Int boardSize, bool allowDiagonals, bool allowFreeMode) {
 		this.boardSize = boardSize;
 		this.allowDiagonals = allowDiagonals;
 		this.allowFreeMode = allowFreeMode;
 		Init (boardSize.x * boardSize.y);
-		nodeFactory.CreateNodes(boardSize.x,boardSize.y);
+		nodes = nodeFactory.CreateNodes(boardSize.x,boardSize.y);
 		GetComponent<ShapeDetection>().generatePixelGrid(this);
 	}
 

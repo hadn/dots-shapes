@@ -14,16 +14,18 @@ public class NodeFactory : MonoBehaviour{
 		linkId = 1;
 	}
 
-	public void CreateNodes (int height, int width) {
+	public List<Node> CreateNodes (int height, int width) {
+		List<Node> list = new List<Node>();
 		Vector2 centralizationOffset = new Vector2 (	
 			(width-1) /2f,
 			(height-1)/2f);
 
 		for (int i = 0; i < height ;i ++){
 			for (int j=0;j<width;j++){
-				createNode(i * width + j,i,j,centralizationOffset);
+				list.Add ( createNode(i * width + j,i,j,centralizationOffset) );
 			}
 		}
+		return list;
 	}
 
 	Node createNode ( int nodeId, int i , int j , Vector2 offset) {
