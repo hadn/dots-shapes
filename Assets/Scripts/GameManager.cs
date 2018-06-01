@@ -13,6 +13,10 @@ public class GameManager : Singleton<GameManager> {
 	List<Player> players;
 	Player currentPlayer;
 
+
+	float totalArea;
+	float maxArea;
+
 	public void startANewGame (Player player1, Player player2, Vector2Int boardSize,
 		bool allowDiagonals,bool allowFreeMode) {
 		Board.Instance.ClearBoard ();
@@ -26,6 +30,8 @@ public class GameManager : Singleton<GameManager> {
 		float difHeight = boardSize.x -1 - cameraHeight;
 		float difWidth = boardSize.y - 1 - cameraWidth;
 
+		maxArea = (boardSize.x-1) * (boardSize.y-1);
+
 		if (difHeight > difWidth){
 			Camera.main.orthographicSize = ( (boardSize.x+1) * 1.1f) / 2f;
 		}
@@ -33,8 +39,8 @@ public class GameManager : Singleton<GameManager> {
             Camera.main.orthographicSize =  (( (boardSize.y+1)*1.1f)/2f) /Camera.main.aspect;
 		}
 		HUD.Instance.show();
-		HUD.Instance.setPlayerColor (0," player1.name" , player1.color);
-		HUD.Instance.setPlayerColor (1, "player2.name" , player2.color);
+		HUD.Instance.setPlayerColor (0, "Jogador 1" , player1.color);
+		HUD.Instance.setPlayerColor (1, "Jogador 2" , player2.color);
 		updatePlayerIndicator ();
 	}
 
@@ -55,7 +61,18 @@ public class GameManager : Singleton<GameManager> {
 		polygon.GetComponent<MeshRenderer>().material = currentPlayer.mat;
 		var score = ScoreCalculator.getScore(polygon,borderNodes);
 		currentPlayer.score += score;
+		var da = polygon.AddComponent<DisplayArea>();
+		da.Area = score;
 		HUD.Instance.UpdateScore (players.IndexOf (currentPlayer),currentPlayer.score);
+		checkGameEndedState(score);
+	}
+
+	void checkGameEndedState (float score) {
+		totalArea += score;
+		if (totalArea == maxArea){
+			Debug.Log ("Game has ended");
+			gameState = State.STOPED;
+		}
 	}
 
 	public void PlayerMoved (Board.PlayerMoveResult result) {

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -36,10 +37,12 @@ public class ScoreCalculator {
 			if (borderNodes.Contains (node)){
 				continue;
 			}
-			var col = Physics2D.OverlapPoint (p);
-			if (myCol == col)
+			var cols = Physics2D.OverlapPointAll (p);
+			if (Array.Exists(cols, col => col == myCol))
 				I++;
 		}
+
+		Debug.Log ("Border nodes " + B + "\nInternal nodes " + I);
 
 		return B/2 + I -1;
 	}
