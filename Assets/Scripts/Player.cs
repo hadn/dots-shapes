@@ -11,6 +11,7 @@ public class Player {
 	public float score;
 	public Color color;
 	public Material mat;
+	public AI ai = new AI();
 
 	public Player (Type type , Color col) {
 		this.playerType = type;

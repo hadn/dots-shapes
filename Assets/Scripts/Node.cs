@@ -5,7 +5,7 @@ using UnityEngine;
 public class Node : MonoBehaviour {
 	public Vector2 coord;
 	public int Id;
-
+	public List<Node> neighbours = new List<Node>();
 	static Node selectedNode;
 
 	Color defaultColor ;
@@ -20,14 +20,14 @@ public class Node : MonoBehaviour {
 		this.Id = nodeId;
 	}
 
-	public Board.PlayerMoveResult OnClick () {
+	public Board.MoveInfo OnClick () {
 		if (selectedNode == null) {
 			selectedNode = this;
 			ToggleIsSelected (true);
-			return Board.PlayerMoveResult.INVALID;
+			return new Board.MoveInfo (Board.PlayerMoveResult.INVALID,null);
 		}
 		else {
-			Board.PlayerMoveResult result = Board.Instance.CreateConnection (this,selectedNode);
+			var result = Board.Instance.CreateConnection (this,selectedNode);
 			selectedNode.ToggleIsSelected(false);
 			selectedNode = null;
 			return result;

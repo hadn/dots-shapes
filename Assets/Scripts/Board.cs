@@ -56,23 +56,31 @@ public class Board : Singleton<Board> {
         return new Vector3((boardSize.y - 1) / 2f, (boardSize.x - 1) / 2f, 0f);
 	}
 
-	public PlayerMoveResult CreateConnection (Node n1, Node n2) {
+	public bool CanConnectNodes (Node n1 , Node n2) {
 		if (alreadyConnectedNodes(n1,n2))
-			return PlayerMoveResult.INVALID;
+			return false;
 		if (!canConnectNodes(n1,n2))
-			return PlayerMoveResult.INVALID;
+			return false;
 		if (newLinkCollides(n1,n2))
-			return PlayerMoveResult.INVALID;
+			return false;
+		return true;
+	}
+
+	public MoveInfo CreateConnection (Node n1, Node n2) {
+		if (!CanConnectNodes(n1,n2))
+			return new MoveInfo (PlayerMoveResult.INVALID,null);
 
 		adjacencyMatrix[n1.Id,n2.Id] = 1;
 		adjacencyMatrix[n2.Id,n1.Id] = 1;
+		n1.neighbours.Add (n2);
+		n2.neighbours.Add (n1);
 		Link link = linkFactory.CreateLink(n1,n2);
 		List<List<int>> polygons = GetComponent<ShapeDetection>().CreateLine(n1,n2,link.Id);
 		bool newMesh = generateMesh(polygons);
 		if (newMesh)
-			return PlayerMoveResult.NEW_POLYGON;
+			return new MoveInfo (PlayerMoveResult.NEW_POLYGON , link);
 		else
-			return PlayerMoveResult.NEW_EDGE;
+			return new MoveInfo (PlayerMoveResult.NEW_EDGE , link );
 	}
 
 	bool generateMesh (List<List<int>> polygons) {
@@ -126,5 +134,15 @@ public class Board : Singleton<Board> {
 	public void ClearBoard () {
 		linkFactory.Clear();
 		nodeFactory.Clear();
+	}
+
+	public struct MoveInfo
+	{
+		public PlayerMoveResult result;
+		public Link link;
+		public MoveInfo (PlayerMoveResult result , Link link) {
+			this.result = result;
+			this.link = link;
+		}
 	}
 }

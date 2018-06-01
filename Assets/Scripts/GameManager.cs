@@ -75,13 +75,28 @@ public class GameManager : Singleton<GameManager> {
 		}
 	}
 
-	public void PlayerMoved (Board.PlayerMoveResult result) {
-		switch (result)
+	public void MoveAI (Move move) {
+		if (move.n1 == null || move.n2 == null)
+			return;
+		var result = Board.Instance.CreateConnection (move.n1, move.n2);
+		PlayerMoved (result);
+	}
+
+	public void PlayerMoved (Board.MoveInfo moveInfo) {
+		switch (moveInfo.result)
 		{
 			case Board.PlayerMoveResult.NEW_EDGE:
 				nextPlayer();
+				if (currentPlayer.playerType == Player.Type.AI){
+					var move = currentPlayer.ai.TakeTurn (moveInfo.link);
+					MoveAI (move);
+				}
 				break;
 			case Board.PlayerMoveResult.NEW_POLYGON:
+				if (currentPlayer.playerType == Player.Type.AI){
+					var move = currentPlayer.ai.TakeTurn (moveInfo.link);
+					MoveAI (move);
+				}
 				break;
 		}
 	}
