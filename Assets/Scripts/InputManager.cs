@@ -10,7 +10,12 @@ public class InputManager : Singleton<MonoBehaviour> {
 	
 
 	void Update () {
+		if (Input.GetKeyDown(KeyCode.R)) {
+			GameManager.instance.ReloadGame();
+		}
 		if (GameManager.Instance.gameState != GameManager.State.RUNNING)
+			return;
+		if (GameManager.Instance.getCurrentPlayerType() != Player.Type.HUMAN)
 			return;
 		if (Input.GetMouseButtonDown(0)) {
 			Collider2D col =  Physics2D.OverlapCircle(
@@ -23,9 +28,6 @@ public class InputManager : Singleton<MonoBehaviour> {
 			}
 			else 
 				Node.OnClickNothing();
-		}
-		if (Input.GetKeyDown(KeyCode.R)) {
-			GameManager.instance.ReloadGame();
 		}
 	}
 

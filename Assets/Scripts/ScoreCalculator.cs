@@ -42,7 +42,7 @@ public class ScoreCalculator {
 				I++;
 		}
 
-		Debug.Log ("Border nodes " + B + "\nInternal nodes " + I);
+		//Debug.Log ("Border nodes " + B + "\nInternal nodes " + I);
 
 		return B/2 + I -1;
 	}

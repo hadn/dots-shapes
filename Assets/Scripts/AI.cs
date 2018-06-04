@@ -1,6 +1,7 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
+using System.Text;
 
 public class AI  {
 	static Board _board;
@@ -15,6 +16,8 @@ public class AI  {
 	List<Move> pendingMoves = new List<Move>();
 
 	public Move TakeTurn (Link link) {
+		if (link == null)
+			return getRandomMove();
 		pendingMoves.AddRange (checkNode (link.n1 , link.n2) );
 		removeNoLongerPossibleMoves();
 		if (pendingMoves.Count > 0){
@@ -23,7 +26,30 @@ public class AI  {
 			return move;
 		}
 		else 
-			return new Move(null,null);// any viable move.
+			return getRandomMove();
+	}
+
+	Move getRandomMove () {
+		List <Node> nodes = new List<Node> (Board.Instance.nodes);
+		Move candidateMove = new Move(null,null);
+		bool foundMove = false;
+		while (nodes.Count > 0 && !foundMove) {
+			var node =  nodes[Random.Range (0,nodes.Count)];
+			nodes.Remove(node);
+			foreach (var viz in Board.Instance.nodes)
+			{
+				if (node.Id == viz.Id)
+					continue;
+				if (Board.Instance.CanConnectNodes (node,viz)){
+					candidateMove = new Move (node,viz);
+					if (node.neighbours.Count < 1 && viz.neighbours.Count < 1 ){
+						foundMove = true;
+						break;
+					}
+				}
+			}
+		}
+		return candidateMove;
 	}
 
 	void removeNoLongerPossibleMoves () {

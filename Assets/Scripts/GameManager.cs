@@ -17,6 +17,10 @@ public class GameManager : Singleton<GameManager> {
 	float totalArea;
 	float maxArea;
 
+	public Player.Type getCurrentPlayerType () {
+		return currentPlayer.playerType;
+	}
+
 	public void startANewGame (Player player1, Player player2, Vector2Int boardSize,
 		bool allowDiagonals,bool allowFreeMode) {
 		Board.Instance.ClearBoard ();
@@ -42,6 +46,8 @@ public class GameManager : Singleton<GameManager> {
 		HUD.Instance.setPlayerColor (0, "Jogador 1" , player1.color);
 		HUD.Instance.setPlayerColor (1, "Jogador 2" , player2.color);
 		updatePlayerIndicator ();
+		if (getCurrentPlayerType() == Player.Type.AI)
+			proccessPreviousMove (null);
 	}
 
 	void updatePlayerIndicator () {
@@ -75,11 +81,17 @@ public class GameManager : Singleton<GameManager> {
 		}
 	}
 
-	public void MoveAI (Move move) {
+	public void OnAIMoved (Move move) {
 		if (move.n1 == null || move.n2 == null)
 			return;
 		var result = Board.Instance.CreateConnection (move.n1, move.n2);
 		PlayerMoved (result);
+	}
+
+	void proccessPreviousMove (Link link) {
+		if (currentPlayer.playerType == Player.Type.AI){
+					AIManager.Instance.DelayTakeTurn (currentPlayer,link , OnAIMoved);
+		}
 	}
 
 	public void PlayerMoved (Board.MoveInfo moveInfo) {
@@ -87,16 +99,10 @@ public class GameManager : Singleton<GameManager> {
 		{
 			case Board.PlayerMoveResult.NEW_EDGE:
 				nextPlayer();
-				if (currentPlayer.playerType == Player.Type.AI){
-					var move = currentPlayer.ai.TakeTurn (moveInfo.link);
-					MoveAI (move);
-				}
+				proccessPreviousMove (moveInfo.link);
 				break;
 			case Board.PlayerMoveResult.NEW_POLYGON:
-				if (currentPlayer.playerType == Player.Type.AI){
-					var move = currentPlayer.ai.TakeTurn (moveInfo.link);
-					MoveAI (move);
-				}
+				proccessPreviousMove (moveInfo.link);
 				break;
 		}
 	}
