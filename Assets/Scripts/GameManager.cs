@@ -1,11 +1,13 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
 using UnityEngine.SceneManagement;
 using UnityEngine.Events;
 
-public class GameManager : Singleton<GameManager> {
+public class GameManager : Singleton<GameManager>
+{	
 	public enum State {
 		RUNNING, PAUSED,STOPED
 	}
@@ -13,10 +15,11 @@ public class GameManager : Singleton<GameManager> {
 	List<Player> players;
 	Player currentPlayer;
 
-
 	float totalArea;
 	float maxArea;
 
+	public event Action<List<Player>> OnGameOver;
+		
 	public Player.Type getCurrentPlayerType () {
 		return currentPlayer.playerType;
 	}
@@ -78,6 +81,10 @@ public class GameManager : Singleton<GameManager> {
 		if (totalArea == maxArea){
 			Debug.Log ("Game has ended");
 			gameState = State.STOPED;
+			if (OnGameOver != null)
+			{
+				OnGameOver(players);
+			}
 		}
 	}
 
